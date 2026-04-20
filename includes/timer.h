@@ -1,0 +1,4 @@
+#ifndef LAB1_LINAL_TIMER_H
+#define LAB1_LINAL_TIMER_H
+
+#endif //LAB1_LINAL_TIMER_H
