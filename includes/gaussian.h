@@ -1,4 +1,6 @@
 #ifndef LAB1_LINAL_GAUSSIAN_H
 #define LAB1_LINAL_GAUSSIAN_H
 
+
+
 #endif //LAB1_LINAL_GAUSSIAN_H
