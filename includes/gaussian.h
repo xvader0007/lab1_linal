@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-Vector gauss_no_pivot(Matrix a, Matrix b);
-Vector gauss_partial_pivot(Matrix a, Matrix b);
+Vector gauss_no_pivot(Matrix a, Vector b);
+Vector gauss_partial_pivot(Matrix a, Vector b);
 
 #endif //LAB1_LINAL_GAUSSIAN_H
