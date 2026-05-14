@@ -12,7 +12,7 @@ Vector gauss_no_pivot(Matrix A, Vector b)
         for (int j = i + 1; j < n; j++)
         {
             double m = A[j][i] / A[i][i];
-            b[i] -= m * b[i];
+            b[j] -= m * b[i];
 
             for (int k = i; k < n; k++)
             {
@@ -34,7 +34,7 @@ Vector gauss_no_pivot(Matrix A, Vector b)
     return x;
 }
 
-Vector gauss(Matrix A, Vector b)
+Vector gauss_partial_pivot(Matrix A, Vector b)
 {
     int n = A.size();
     for (int i = 0; i < n; i++)

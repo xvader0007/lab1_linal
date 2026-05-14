@@ -123,7 +123,7 @@ void run_exp_hilbert()
         try{run_test("Gauss_no_pivot", gauss_no_pivot(H, b));}
         catch (...) {std::cout << std::setw(27) << n << "Gauss_no_pivot" << "FAILED\n";}
 
-        try{run_test("Gauss_pivot", gauss_no_pivot(H, b));}
+        try{run_test("gauss_partial_pivot", gauss_partial_pivot(H, b));}
         catch (...) {std::cout << std::setw(27) << n << "Gauss_partial" << "FAILED\n";}
 
         try
