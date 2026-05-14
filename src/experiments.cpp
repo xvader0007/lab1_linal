@@ -6,14 +6,29 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <cmath>
+#include <sstream>
+
+// Вспомогательная функция для безопасного вывода чисел (заменяет inf/nan на строку)
+std::string fmt_val(double v) {
+    if (!std::isfinite(v)) return "FAILED/INF";
+    std::ostringstream oss;
+    oss << std::scientific << std::setprecision(4) << v;
+    return oss.str();
+}
 
 void run_exp_single_system()
 {
-    std::cout << "\n===========Сравнение по времени===========\n";
-    std::cout << std::left << std::setw(6) << "N"
-              << std::setw(12) << "Gauss_no" << std::setw(12) << "Gauss_part"
-              << std::setw(12) << "LU_total" << std::setw(12) << "LU_secomp"
-              << std::setw(12) << "LU_solve\n";
+    std::cout << "\n=== 4.1 Сравнение времени решения одной системы ===\n";
+    std::cout << std::left
+              << std::setw(6) << "N"
+              << std::setw(16) << "Gauss (no pivot)"
+              << std::setw(16) << "Gauss (partial)"
+              << std::setw(16) << "LU (total)"
+              << std::setw(16) << "LU (decomp)"
+              << std::setw(16) << "LU (solve)" << "\n";
+    std::cout << std::string(86, '-') << "\n";
+    std::cout << std::fixed << std::setprecision(2);
 
     std::vector<int> sizes = {100, 200, 500, 1000};
     unsigned seed = 42;
@@ -24,78 +39,70 @@ void run_exp_single_system()
         auto A = matrix_random_generate(n, -1.0, 1.0, seed);
         auto b = vector_random_generate(n, -1.0, 1.0, seed + 1);
 
-        t.start();
-        gauss_no_pivot(A, b);
-        double t1 = t.elapsed_ms();
+        t.start(); gauss_no_pivot(A, b); double t1 = t.elapsed_ms();
+        t.start(); gauss_partial_pivot(A, b); double t2 = t.elapsed_ms();
 
-        t.start();
-        gauss_partial_pivot(A, b);
-        double t2 = t.elapsed_ms();
-
-        t.start();
-        auto lu = lu_decompose(A);
-        double t_decomp = t.elapsed_ms();
-
-        t.start();
-        solve_lu(lu,b);
-        double t_solve = t.elapsed_ms();
+        t.start(); auto lu = lu_decompose(A); double t_decomp = t.elapsed_ms();
+        t.start(); solve_lu(lu, b); double t_solve = t.elapsed_ms();
         double t3 = t_decomp + t_solve;
 
         std::cout << std::left << std::setw(6) << n
-              << std::fixed << std::setprecision(2)
-              << std::setw(12) << t1 << std::setw(12) << t2
-              << std::setw(12) << t3 << std::setw(12) << t_decomp
-              << std::setw(12) << t_solve << "\n";
+                  << std::setw(16) << t1
+                  << std::setw(16) << t2
+                  << std::setw(16) << t3
+                  << std::setw(16) << t_decomp
+                  << std::setw(16) << t_solve << "\n";
     }
 }
 
 void run_exp_multiple_rhs()
 {
-    std::cout << "\n===========Множественные правые части (n=500)===========\n";
+    std::cout << "\n=== 4.2 Экономия времени при множественных правых частях ===\n";
+    std::cout << std::left
+              << std::setw(6) << "K"
+              << std::setw(18) << "Gauss (partial)"
+              << std::setw(18) << "LU (solve only)" << "\n";
+    std::cout << std::string(42, '-') << "\n";
+    std::cout << std::fixed << std::setprecision(2);
 
     int n = 500;
     std::vector<int> k_values = {1, 10, 100};
-
     unsigned seed = 42;
     auto A = matrix_random_generate(n, -1.0, 1.0, seed);
     auto lu = lu_decompose(A);
     Timer t;
 
-    std::cout << std::left << std::setw(6) << "K"
-    << std::setw(16) << "Gauss_partial" << std::setw(16)
-    << "LU_solve\n";
-
     for (int k : k_values)
     {
         t.start();
-        for (int i = 0; i < k; i++)
-        {
+        for (int i = 0; i < k; ++i) {
             auto b = vector_random_generate(n, -1.0, 1.0, seed + i);
             gauss_partial_pivot(A, b);
         }
         double t_gauss = t.elapsed_ms();
 
         t.start();
-        for (int i = 0; i < k; i++)
-        {
+        for (int i = 0; i < k; ++i) {
             auto b = vector_random_generate(n, -1.0, 1.0, seed + i);
             solve_lu(lu, b);
         }
         double t_lu = t.elapsed_ms();
 
         std::cout << std::left << std::setw(6) << k
-        << std::fixed << std::setprecision(2)
-        << std::setw(16) << t_gauss << std::setw(16)
-        << t_lu << std::endl;
+                  << std::setw(18) << t_gauss
+                  << std::setw(18) << t_lu << "\n";
     }
 }
 
 void run_exp_hilbert()
 {
-    std::cout << "\n===========Множественные правые части (n=500)===========\n";
-    std::cout << std::left << std::setw(5) << "N"
-    << std::setw(22) << "Method" << std::setw(18)
-    << "Rel_Error" << std::setw(18) << "Residual\n";
+    std::cout << "\n=== 4.3 Проверка точности на матрице Гильберта ===\n";
+    std::cout << std::left
+              << std::setw(5) << "N"
+              << std::setw(20) << "Method"
+              << std::setw(18) << "Rel_Error"
+              << std::setw(18) << "Residual" << "\n";
+    std::cout << std::string(61, '-') << "\n";
 
     std::vector<int> sizes = {5, 10, 15};
     for (int n : sizes)
@@ -107,30 +114,40 @@ void run_exp_hilbert()
         auto run_test = [&](const std::string& name, Vector x_approx)
         {
             Vector diff(n);
-            for (int i = 0; i < n; i++)
-            {
-                diff[i] = x_approx[i] - x_exact[i];
-            }
+            for (int i = 0; i < n; ++i) diff[i] = x_approx[i] - x_exact[i];
             double rel_err = l2_norm(diff) / l2_norm(x_exact);
-            double res = compute_residual(H, x_approx, b);
+            double res = compute_residual(H, b, x_approx);
+
             std::cout << std::left << std::setw(5) << n
-            << std::setw(22) << name
-            << std::scientific << std::setprecision(4)
-            << std::setw(18) << rel_err << std::setw(18)
-            << res << std::endl;
+                      << std::setw(20) << name
+                      << std::setw(18) << fmt_val(rel_err)
+                      << std::setw(18) << fmt_val(res) << "\n";
         };
 
-        try{run_test("Gauss_no_pivot", gauss_no_pivot(H, b));}
-        catch (...) {std::cout << std::setw(27) << n << "Gauss_no_pivot" << "FAILED\n";}
-
-        try{run_test("Gauss_pivot", gauss_no_pivot(H, b));}
-        catch (...) {std::cout << std::setw(27) << n << "Gauss_partial" << "FAILED\n";}
-
-        try
-        {
-            auto lu = lu_decompose(H);
-            run_test("LU_decompose", solve_lu(lu,b));
+        try { run_test("Gauss (no pivot)", gauss_no_pivot(H, b)); }
+        catch (...) {
+            std::cout << std::left << std::setw(5) << n
+                      << std::setw(20) << "Gauss (no pivot)"
+                      << std::setw(18) << "FAILED"
+                      << std::setw(18) << "FAILED" << "\n";
         }
-        catch (...) {std::cout << std::setw(27) << n << "LU_decompose" << "FAILED\n";}
+
+        try { run_test("Gauss (partial)", gauss_partial_pivot(H, b)); }
+        catch (...) {
+            std::cout << std::left << std::setw(5) << n
+                      << std::setw(20) << "Gauss (partial)"
+                      << std::setw(18) << "FAILED"
+                      << std::setw(18) << "FAILED" << "\n";
+        }
+
+        try {
+            auto lu = lu_decompose(H);
+            run_test("LU (decompose)", solve_lu(lu, b));
+        } catch (...) {
+            std::cout << std::left << std::setw(5) << n
+                      << std::setw(20) << "LU (decompose)"
+                      << std::setw(18) << "FAILED"
+                      << std::setw(18) << "FAILED" << "\n";
+        }
     }
 }

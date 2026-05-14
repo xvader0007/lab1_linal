@@ -28,11 +28,13 @@ LUResult lu_decompose(const Matrix &A)
             {
                 sum += L[k][m] * U[m][i];
             }
-            L[i][i] = 1.0;
-        }
 
-        return {L, U};
+            L[k][i] = (A[k][i] - sum) / U[i][i];
+        }
+        L[i][i] = 1.0;
+
     }
+    return {L, U};
 }
 
 Vector forward_substitution(const Matrix& L, const Vector& b)
@@ -73,7 +75,7 @@ Vector back_substitution(const Matrix& U, const Vector& y)
     return x;
 }
 
-Vector solve_lu(const LUResult &lu, const Vector &b)
+Vector solve_lu(const LUResult &lu, Vector b)
 {
     return back_substitution(lu.U, forward_substitution(lu.L, b));
 }

@@ -2,10 +2,10 @@
 #include <random>
 #include <cmath>
 
-Matrix generate_random_matrix(int n, double low, double high, unsigned seed)
+Matrix matrix_random_generate(int n, double low, double high, unsigned seed)
 {
     std::mt19937 gen(seed);
-    std::uniform_int_distribution<> dist(low, high);
+    std::uniform_real_distribution<> dist(low, high);
 
     Matrix A(n, Vector(n));
     for (auto& row : A)
@@ -26,7 +26,7 @@ Matrix generate_random_matrix(int n, double low, double high, unsigned seed)
     return A;
 }
 
-Vector generate_random_vector(int n, double low, double high, unsigned seed)
+Vector vector_random_generate(int n, double low, double high, unsigned seed)
 {
     std::mt19937 gen(seed);
     std::uniform_real_distribution<> dist(low, high);
@@ -52,7 +52,7 @@ Matrix hilbert_matrix_generate(int n)
     return H;
 }
 
-Vector multiply(Matrix& A, Vector& x)
+Vector multiply(const Matrix& A, const Vector& x)
 {
     int n = A.size();
     Vector res(n, 0.0);
@@ -78,7 +78,7 @@ double l2_norm(const Vector& x)
 
 double compute_residual(const Matrix& A, const Vector& b, const Vector& x)
 {
-    Vector r = multiply(A, b);
+    Vector r = multiply(A, x);
 
     for (int i = 0; i < b.size(); i++)
     {
