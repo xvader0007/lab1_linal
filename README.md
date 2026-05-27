@@ -256,6 +256,6 @@ $$
 
 Исходный код, скрипты для построения графиков и документация:
 
-**https://github.com/yourusername/lab1_linal**
+**https://github.com/xvader0007/lab1_linal**
 
 ---
