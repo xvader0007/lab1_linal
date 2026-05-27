@@ -1,6 +1,8 @@
 #include "matrix_util.h"
 #include <random>
 #include <cmath>
+#include <iostream>
+#include <iomanip>
 
 Matrix matrix_random_generate(int n, double low, double high, unsigned seed)
 {
@@ -86,4 +88,21 @@ double compute_residual(const Matrix& A, const Vector& b, const Vector& x)
     }
 
     return l2_norm(r);
+}
+
+void print_matrix(const std::string& title, const Matrix& m)
+{
+    std::cout << "\n" << title << "\n";
+    std::cout << std::fixed << std::setprecision(4);
+
+    for (const auto& row : m)
+    {
+        for (double val : row)
+        {
+            // setw(12) выравнивает столбцы
+            std::cout << std::setw(12) << val;
+        }
+        std::cout << "\n";
+    }
+    std::cout << "--------------------------------------------------\n";
 }

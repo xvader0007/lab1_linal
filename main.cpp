@@ -3,6 +3,9 @@
 #include <string>
 #include <windows.h>
 #include "experiments.h"
+#include "matrix_util.h"
+#include "lu.h"
+#include "gaussian.h"
 
 //Утилиты ввода/вывода
 void clear_input_buffer() {
@@ -34,6 +37,27 @@ void print_menu() {
     std::cout << " >>> Выбор: ";
 }
 
+//ДЕМОНСТРАЦИЯ
+void run_matrix_demo()
+{
+    std::cout << "\n\n========== ДЕМОНСТРАЦИЯ АЛГОРИТМОВ (n=4) ==========\n";
+    std::cout << "Генерируем случайную матрицу 4x4 и показываем процесс разложения.\n\n";
+
+    int n = 4;
+    Matrix A = matrix_random_generate(n, -5.0, 5.0, 42);
+    Vector b = vector_random_generate(n, -5.0, 5.0, 43);
+
+    // 1. Исходная матрица
+    print_matrix("Исходная матрица A", A);
+
+    // 2. LU Разложение
+    auto lu = lu_decompose(A);
+    print_matrix("Матрица L (Нижняя треугольная)", lu.L);
+    print_matrix("Матрица U (Верхняя треугольная)", lu.U);
+
+    wait_for_enter();
+}
+
 //Главный цикл
 void run_interactive_menu() {
     int choice = -1;
@@ -58,7 +82,7 @@ void run_interactive_menu() {
             case 0:
                 return;
             default:
-                std::cout << "⚠️  Неверный выбор. Доступные пункты: 0–5.\n";
+                std::cout << "Неверный выбор. Доступные пункты: 0–5.\n";
         }
 
         if (choice != 0) wait_for_enter();
@@ -67,6 +91,8 @@ void run_interactive_menu() {
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
+
+    run_matrix_demo();
 
     run_interactive_menu();
     return 0;
